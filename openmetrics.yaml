@@ -1,0 +1,6 @@
+instances:
+  - prometheus_url: http://ccloudexporter:2112/metrics
+    namespace: "ccloud"
+    metrics:
+      - ccloud*
+  

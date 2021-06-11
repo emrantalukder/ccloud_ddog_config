@@ -1,0 +1,23 @@
+version: '3.1'
+services:
+  ccloudexporter:
+    image: dabz/ccloudexporter
+    ports:
+      - 2112:2112
+    environment:
+      CCLOUD_USER: ${CCLOUD_USER}
+      CCLOUD_PASSWORD: ${CCLOUD_PASSWORD}
+    command: -cluster ${CCLOUD_CLUSTER} -connector ${CCLOUD_CONNECTOR} -ksqlDB ${CCLOUD_KSQLDB} -schemaRegistry ${CCLOUD_SR}
+  datadog:
+    image: datadog/agent:latest-jmx
+    links:
+      - ccloudexporter
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_TAGS="env:ps-default service:confluent"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - ./openmetrics.yaml:/etc/datadog-agent/conf.d/openmetrics.yaml:ro
+      - ./kafka_consumer.yaml:/etc/datadog-agent/conf.d/kafka_consumer.d/conf.yaml:ro
